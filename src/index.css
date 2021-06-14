@@ -1,0 +1,12 @@
+.grid {
+  display: grid;
+  place-items: center;
+}
+
+.white{
+    color: white;
+}
+
+.black{
+  color: rgb(83, 83, 83)
+}
