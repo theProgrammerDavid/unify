@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import './index.css'
-import { PDFDocument, degrees } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 
-var uploadedFiles: any = [];
+var uploadedFiles: File[] = [];
+const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
 
 function handleFileSelect(evt: any) {
   var files = evt.target.files; // FileList object
@@ -11,8 +12,8 @@ function handleFileSelect(evt: any) {
   uploadedFiles = evt.target.files;
 
   let output: string[] = [];
-  for (var i = 0, f; f = files[i]; i++) {
-
+  for (var i = 0; i < files.length; i++) {
+    let f = files[i];
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
       f.size, ' bytes, last modified: ',
       f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
@@ -32,34 +33,35 @@ const checkBrowser = () => {
 }
 
 const makePdf = async () => {
+  if (uploadedFiles.length === 0) return;
+  (document.getElementById("prog") as HTMLInputElement).value = '0';
+
+  let progressUnit = 100 / uploadedFiles.length;
+  console.log(progressUnit)
+
   const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage()
 
-  const sourcePdfUrl = 'https://pdf-lib.js.org/assets/with_large_page_count.pdf'
-  const sourcePdf = await fetch(sourcePdfUrl).then((res) => res.arrayBuffer())
+  for (let i = 1; i <= uploadedFiles.length; i++) {
+    let file = uploadedFiles[i - 1];
+    const p2 = await PDFDocument.load(await fileToUintArray(file));
+    for (let j = 0; j < p2.getPageCount(); j++) {
+      pdfDoc.addPage().drawPage(await pdfDoc.embedPage(p2.getPages()[j]))
+    }
 
-  const [embeddedPage] = await pdfDoc.embedPdf(sourcePdf, [73])
-  page.drawPage(embeddedPage, {
-    x: 250,
-    y: 200,
-    xScale: 0.5,
-    yScale: 0.5,
-    rotate: degrees(30),
-    opacity: 0.75,
-  })
+    (document.getElementById("prog") as HTMLInputElement).value = `${progressUnit * i}`
+
+    console.log(`${progressUnit * i}%`)
+  }
+
 
   const pdfBytes = await pdfDoc.save()
   var blob = new Blob([pdfBytes], { type: "application/pdf" });
-
+  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged.pdf';
   var link = document.createElement('a');
   link.href = window.URL.createObjectURL(blob);
-  link.download = "myFileName.pdf";
+  link.download = `${fileName}.pdf`;
   link.click();
 
-}
-
-const convert = () => {
-  console.log(uploadedFiles)
 }
 
 const card = (heading: string, body: string) => {
@@ -79,7 +81,7 @@ function App() {
   return (
     <div className="uk-container ">
 
-      <p className="uk-padding-large uk-light uk-heading-large black grid">
+      <p className="uk-padding uk-light uk-heading-large black grid">
         UNIFY
       </p>
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
@@ -109,27 +111,38 @@ function App() {
         </div>
       </div>
 
-      <div id="dropZone" className="js-upload uk-placeholder uk-text-center">
-        <span uk-icon="icon: cloud-upload"></span>
-        <span className="uk-text-middle">Attach files by dropping them here or</span>
-        <div uk-form-custom>
-          <input type="file" id="inputFiles" accept=".pdf" multiple />
-          <output id="outputList" />
-        </div>
-      </div>
-
-      <progress id="js-progressbar" className="uk-progress" value="0" max="100" hidden></progress>
-
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div className=""></div>
         <div className="uk-light">
+          <input className="uk-input" id="fileName" type="text" placeholder="unify_merged" />
+          <br />
+          <br />
+          <progress id="prog" className="uk-progress white" value="0" max="100" >Progress</progress>
           <button
             className="uk-button uk-button-default"
-            onClick={convert}
-          >CONVERT</button>
+            onClick={() => { makePdf(); }}
+          >
+            MERGE</button>
         </div>
         <div className=""></div>
       </div>
+
+      <div id="dropZone" className="js-upload uk-placeholder uk-text-center">
+        <span uk-icon="icon: cloud-upload"></span>
+        <span className="uk-text-middle">Attach files by dropping them here or</span>
+
+        <div uk-form-custom>
+          <label className="uk-button white uk-button-default custom-file-upload">
+            <input type="file" id="inputFiles" accept=".pdf" multiple={true} />
+            SELECT FILES
+          </label>
+          <br />
+          <output id="outputList" className="white" />
+        </div>
+      </div>
+
+
+
 
     </div>
   );
