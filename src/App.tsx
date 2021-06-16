@@ -128,8 +128,6 @@ function App() {
       </div>
 
       <div id="dropZone" className="js-upload uk-placeholder uk-text-center">
-        <span uk-icon="icon: cloud-upload"></span>
-        <span className="uk-text-middle">Attach files by dropping them here or</span>
 
         <div uk-form-custom>
           <label className="uk-button white uk-button-default custom-file-upload">
