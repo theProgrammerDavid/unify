@@ -2,15 +2,17 @@ import React, { useEffect } from 'react';
 import './index.css'
 import { PDFDocument, degrees } from 'pdf-lib';
 
-const handleFileSelect = (evt: any) => {
-  evt.stopPropagation();
-  evt.preventDefault();
+var uploadedFiles: any = [];
 
-  var files = evt.dataTransfer.files; // FileList object.
-
+function handleFileSelect(evt: any) {
+  var files = evt.target.files; // FileList object
   // files is a FileList of File objects. List some properties.
-  var output = [];
+
+  uploadedFiles = evt.target.files;
+
+  let output: string[] = [];
   for (var i = 0, f; f = files[i]; i++) {
+
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
       f.size, ' bytes, last modified: ',
       f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
@@ -18,18 +20,8 @@ const handleFileSelect = (evt: any) => {
   }
   document.getElementById('outputList')!.innerHTML = '<ul>' + output.join('') + '</ul>';
 }
-
-const handleDragOver = (evt: any) => {
-  evt.stopPropagation();
-  evt.preventDefault();
-  evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-}
-
 const setup = () => {
-  var dropZone = document.getElementById('dropZone')!;
-  dropZone.addEventListener('dragover', handleDragOver, false);
-  dropZone.addEventListener('drop', handleFileSelect, false);
-
+  document.getElementById('inputFiles')!.addEventListener('change', handleFileSelect, false);
 }
 
 const checkBrowser = () => {
@@ -66,6 +58,10 @@ const makePdf = async () => {
 
 }
 
+const convert = () => {
+  console.log(uploadedFiles)
+}
+
 const card = (heading: string, body: string) => {
   return (
     <div className="">
@@ -91,7 +87,7 @@ function App() {
           {card('Fast af', 'Native Asynchronous Javascript PDF Manipulation')}
         </div>
         <div>
-          {card('Privacy 💯', 'All conversion done in your web prowser. No external servers')}
+          {card('Privacy 💯', 'All conversion done in your web browser. No external servers')}
         </div>
         <div>
           {card('Versatile', 'Coming soon - Doc and PPT Manipulation')}
@@ -109,10 +105,10 @@ function App() {
           {card('Compressed Output', 'Coming Soon - Output to disk directly as zip')}
         </div>
         <div>
-          {card('Convert Offline','Install as a PWA to convert documents offline')}
+          {card('Convert Offline', 'Install as a PWA to convert documents offline')}
         </div>
       </div>
-      
+
       <div id="dropZone" className="js-upload uk-placeholder uk-text-center">
         <span uk-icon="icon: cloud-upload"></span>
         <span className="uk-text-middle">Attach files by dropping them here or</span>
@@ -123,6 +119,18 @@ function App() {
       </div>
 
       <progress id="js-progressbar" className="uk-progress" value="0" max="100" hidden></progress>
+
+      <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
+        <div className=""></div>
+        <div className="uk-light">
+          <button
+            className="uk-button uk-button-default"
+            onClick={convert}
+          >CONVERT</button>
+        </div>
+        <div className=""></div>
+      </div>
+
     </div>
   );
 }
