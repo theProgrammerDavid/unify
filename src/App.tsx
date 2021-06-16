@@ -66,42 +66,35 @@ const makePdf = async () => {
 
 }
 
+const card = (heading: string, body: string) => {
+  return (
+    <div className="">
+      <div className="uk-light uk-background-secondary uk-padding">
+        <h3>{heading}</h3>
+        <p>{body}</p>
+
+      </div>
+    </div>
+  )
+}
+
 function App() {
   useEffect(() => { checkBrowser(); setup(); }, [])
   return (
     <div className="uk-container ">
 
-
       <p className="uk-padding-large uk-light uk-heading-large black grid">
         UNIFY
       </p>
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
-        <div>
-          <div>
-            <div className="uk-light uk-background-secondary uk-padding">
-              <h3>Fast af</h3>
-              <p>Native Asynchronous Javascript PDF Manipulation</p>
-              <button className="uk-button uk-button-default">Button</button>
-            </div>
-          </div>
+        <div className="">
+          {card('Fast af', 'Native Asynchronous Javascript PDF Manipulation')}
         </div>
         <div>
-          <div>
-            <div className="uk-light uk-background-secondary uk-padding">
-              <h3>Privacy 💯</h3>
-              <p>All conversion done in your web prowser. No external servers</p>
-              <button className="uk-button uk-button-default">Button</button>
-            </div>
-          </div>
+          {card('Privacy 💯', 'All conversion done in your web prowser. No external servers')}
         </div>
         <div>
-          <div>
-            <div className="uk-light uk-background-secondary uk-padding">
-              <h3>Versatile </h3>
-              <p>Coming soon - Doc and PPT Manipulation</p>
-              <button className="uk-button uk-button-default">Button</button>
-            </div>
-          </div>
+          {card('Versatile', 'Coming soon - Doc and PPT Manipulation')}
         </div>
       </div>
 
@@ -110,36 +103,16 @@ function App() {
 
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div>
-          <div>
-            <div className="uk-light uk-background-secondary uk-padding">
-              <h3>No Limit</h3>
-              <p>No upper limit for maximum docs merged. CPU go brrrr</p>
-              <button className="uk-button uk-button-default">Button</button>
-            </div>
-          </div>
+          {card('No Limit', 'No upper limit for maximum docs merged. CPU go brrrr')}
         </div>
         <div>
-          <div>
-            <div className="uk-light uk-background-secondary uk-padding">
-              <h3>Compressed Output</h3>
-              <p>Coming Soon - Output to disk directly as zip</p>
-              <button className="uk-button uk-button-default">Button</button>
-            </div>
-          </div>
+          {card('Compressed Output', 'Coming Soon - Output to disk directly as zip')}
         </div>
         <div>
-          <div>
-            <div className="uk-light uk-background-secondary uk-padding">
-              <h3>Versatile </h3>
-              <p>Coming soon - Doc and PPT Manipulation</p>
-              <button className="uk-button uk-button-default">Button</button>
-            </div>
-          </div>
+          {card('Convert Offline','Install as a PWA to convert documents offline')}
         </div>
       </div>
-
-
-
+      
       <div id="dropZone" className="js-upload uk-placeholder uk-text-center">
         <span uk-icon="icon: cloud-upload"></span>
         <span className="uk-text-middle">Attach files by dropping them here or</span>
