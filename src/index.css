@@ -3,10 +3,15 @@
   place-items: center;
 }
 
-.white{
-    color: white;
+.white {
+  color: white;
 }
 
-.black{
-  color: rgb(83, 83, 83)
+.black {
+  color: rgb(83, 83, 83);
 }
+
+.mycard {
+  max-height: 600px;
+}
+

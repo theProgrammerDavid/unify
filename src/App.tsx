@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './index.css'
 import { PDFDocument, degrees } from 'pdf-lib'
+
+const checkBrowser = () => {
+  if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
+    alert('The File APIs are not fully supported in this browser.');
+
+  }
+}
 
 const makePdf = async () => {
   const pdfDoc = await PDFDocument.create()
@@ -30,10 +37,13 @@ const makePdf = async () => {
 }
 
 function App() {
+  useEffect(checkBrowser, [])
   return (
-    <div className="uk-container uk-background-muted">
+    <div className="uk-container ">
+
+
       <p className="uk-padding-large uk-light uk-heading-large black grid">
-        Modern PDF Merger
+        UNIFY
       </p>
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div>
@@ -49,7 +59,7 @@ function App() {
           <div>
             <div className="uk-light uk-background-secondary uk-padding">
               <h3>Privacy 💯</h3>
-              <p>All conversion done in your web prowser. No PDFs reach a server</p>
+              <p>All conversion done in your web prowser. No external servers</p>
               <button className="uk-button uk-button-default">Button</button>
             </div>
           </div>
@@ -65,19 +75,50 @@ function App() {
         </div>
       </div>
 
-      <br /><br /><br />
+      {/* ----------------------- */}
 
-      <div className="js-upload uk-placeholder uk-text-center grid ">
+
+      <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
+        <div>
+          <div>
+            <div className="uk-light uk-background-secondary uk-padding">
+              <h3>No Limit</h3>
+              <p>No upper limit for maximum docs merged. CPU go brrrr</p>
+              <button className="uk-button uk-button-default">Button</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div>
+            <div className="uk-light uk-background-secondary uk-padding">
+              <h3>Compressed Output</h3>
+              <p>Coming Soon - Output to disk directly as zip</p>
+              <button className="uk-button uk-button-default">Button</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div>
+            <div className="uk-light uk-background-secondary uk-padding">
+              <h3>Versatile </h3>
+              <p>Coming soon - Doc and PPT Manipulation</p>
+              <button className="uk-button uk-button-default">Button</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div className="js-upload uk-placeholder uk-text-center">
         <span uk-icon="icon: cloud-upload"></span>
-        <span className="uk-text-middle">Attach binaries by dropping them here or</span>
+        <span className="uk-text-middle">Attach files by dropping them here or</span>
         <div uk-form-custom>
           <input type="file" multiple />
         </div>
       </div>
 
       <progress id="js-progressbar" className="uk-progress" value="0" max="100" hidden></progress>
-
-
     </div>
   );
 }
