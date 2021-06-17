@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './index.css'
 import { PDFDocument } from 'pdf-lib';
-
+import jszip from 'jszip';
 
 var uploadedFiles: File[] = [];
 const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
@@ -34,7 +34,7 @@ function checkBrowser() {
   }
 }
 
-async function makePdf() {
+async function makePdf(zipDownload: boolean) {
   if (uploadedFiles.length === 0) return;
   (document.getElementById("prog") as HTMLInputElement).value = '0';
 
@@ -55,14 +55,31 @@ async function makePdf() {
     console.log(`${progressUnit * i}%`)
   }
 
-
+  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged.pdf';
   const pdfBytes = await pdfDoc.save()
   var blob = new Blob([pdfBytes], { type: "application/pdf" });
-  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged.pdf';
-  var link = document.createElement('a');
-  link.href = window.URL.createObjectURL(blob);
-  link.download = `${fileName}.pdf`;
-  link.click();
+
+  
+  if (zipDownload) {
+    const zip = new jszip();
+    zip.file(`${fileName}.pdf`, blob);
+
+    zip.generateAsync({ type: "blob" })
+      .then(function (content) {
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(content);
+        link.download = `${fileName}.zip`;
+        link.click();
+      });
+  }
+  else {
+    var link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `${fileName}.pdf`;
+    link.click();
+  }
+
+
 
 }
 
@@ -79,6 +96,7 @@ function card(heading: string, body: string) {
 }
 
 function App() {
+  const [ziptoggle, setZip] = React.useState<boolean>(false);
   useEffect(() => { checkBrowser(); setup(); }, [])
   return (
     <div className="uk-container ">
@@ -115,15 +133,23 @@ function App() {
       </div>
 
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
-        <div className=""></div>
+        <div className="">
+          <div className="uk-background-secondary uk-padding">
+            <label className="white ">
+              <input type="checkbox" id="zipDownload"
+                onChange={(event) => setZip(event.target.checked)}
+              />&#x20;ZIP download
+            </label>
+          </div>
+        </div>
         <div className="uk-light">
-          <input className="uk-input" id="fileName" type="text" placeholder="Save As  : unify_merged.pdf" />
+          <input className="uk-input" id="fileName" type="text" placeholder={`Save As  : unify_merged.${ziptoggle ? "zip" : "pdf"}`} />
           <br />
           <br />
           <progress id="prog" className="uk-progress" value="0" max="100" >Progress</progress>
           <button
             className="uk-button uk-button-default"
-            onClick={() => { makePdf(); }}
+            onClick={() => { makePdf(ziptoggle); }}
           >
             MERGE</button>
         </div>
