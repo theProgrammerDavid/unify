@@ -2,8 +2,14 @@ import React, { useEffect } from 'react';
 import './index.css'
 import { PDFDocument } from 'pdf-lib';
 
+
 var uploadedFiles: File[] = [];
 const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
+
+const uint8ToB64 = (u8: Uint8Array) => {
+  var decoder = new TextDecoder('utf8');
+  return btoa(decoder.decode(u8));
+}
 
 function handleFileSelect(evt: any) {
   var files = evt.target.files; // FileList object
@@ -21,18 +27,18 @@ function handleFileSelect(evt: any) {
   }
   document.getElementById('outputList')!.innerHTML = '<ul>' + output.join('') + '</ul>';
 }
-const setup = () => {
+function setup() {
   document.getElementById('inputFiles')!.addEventListener('change', handleFileSelect, false);
 }
 
-const checkBrowser = () => {
+function checkBrowser() {
   if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
     alert('The File APIs are not fully supported in this browser.');
 
   }
 }
 
-const makePdf = async () => {
+async function makePdf() {
   if (uploadedFiles.length === 0) return;
   (document.getElementById("prog") as HTMLInputElement).value = '0';
 
@@ -64,7 +70,7 @@ const makePdf = async () => {
 
 }
 
-const card = (heading: string, body: string) => {
+function card(heading: string, body: string) {
   return (
     <div className="">
       <div className="uk-light uk-background-secondary uk-padding">
@@ -83,6 +89,7 @@ function App() {
 
       <p className="uk-padding uk-light uk-heading-large black grid">
         UNIFY
+        <span className="uk-text-meta">Made by <a className="uk-link-muted mylink" rel="noopener" target="_blank" href="https://davidvelho.tech">David Velho</a></span>
       </p>
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div className="">
@@ -114,10 +121,10 @@ function App() {
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div className=""></div>
         <div className="uk-light">
-          <input className="uk-input" id="fileName" type="text" placeholder="unify_merged" />
+          <input className="uk-input" id="fileName" type="text" placeholder="Save As  : unify_merged.pdf" />
           <br />
           <br />
-          <progress id="prog" className="uk-progress white" value="0" max="100" >Progress</progress>
+          <progress id="prog" className="uk-progress" value="0" max="100" >Progress</progress>
           <button
             className="uk-button uk-button-default"
             onClick={() => { makePdf(); }}
@@ -138,10 +145,6 @@ function App() {
           <output id="outputList" className="white" />
         </div>
       </div>
-
-
-
-
     </div>
   );
 }
