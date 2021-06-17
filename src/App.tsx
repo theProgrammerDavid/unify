@@ -92,9 +92,9 @@ function App() {
           {card('Fast af', 'Native Asynchronous Javascript PDF Manipulation')}
         </div>
         <div>
-          {card('Privacy 💯', 'All conversion done in your web browser. No external servers')}
+          {card('Privacy 💯', 'All conversion done in web browser. No external servers and no ads')}
         </div>
-        <div>
+        <div className="disabled  ">
           {card('Versatile', 'Coming soon - Doc and PPT Manipulation')}
         </div>
       </div>
@@ -107,10 +107,10 @@ function App() {
           {card('No Limit', 'No upper limit for maximum docs merged. CPU go brrrr')}
         </div>
         <div>
-          {card('Compressed Output', 'Coming Soon - Output to disk directly as zip')}
-        </div>
-        <div>
           {card('Convert Offline', 'Install as a PWA to convert documents offline')}
+        </div>
+        <div className="disabled">
+          {card('Compressed Output', 'Coming Soon - Output to disk directly as zip')}
         </div>
       </div>
 

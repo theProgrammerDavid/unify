@@ -33,3 +33,6 @@ input[type="file"] {
 .mylink {
   text-decoration: underline;
 }
+.disabled{
+  opacity: 50%;
+}
