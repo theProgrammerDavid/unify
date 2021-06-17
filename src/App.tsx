@@ -6,10 +6,6 @@ import { PDFDocument } from 'pdf-lib';
 var uploadedFiles: File[] = [];
 const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
 
-const uint8ToB64 = (u8: Uint8Array) => {
-  var decoder = new TextDecoder('utf8');
-  return btoa(decoder.decode(u8));
-}
 
 function handleFileSelect(evt: any) {
   var files = evt.target.files; // FileList object
@@ -89,7 +85,7 @@ function App() {
 
       <p className="uk-padding uk-light uk-heading-large black grid">
         UNIFY
-        <span className="uk-text-meta">Made by <a className="uk-link-muted mylink" rel="noopener" target="_blank" href="https://davidvelho.tech">David Velho</a></span>
+        <span className="uk-text-meta">Made by <a className="uk-link-muted mylink" rel="noreferrer" target="_blank" href="https://davidvelho.tech">David Velho</a></span>
       </p>
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div className="">
