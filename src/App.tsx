@@ -59,12 +59,17 @@ async function makePdf(zipDownload: boolean) {
   const pdfBytes = await pdfDoc.save()
   var blob = new Blob([pdfBytes], { type: "application/pdf" });
 
-  
+
   if (zipDownload) {
     const zip = new jszip();
     zip.file(`${fileName}.pdf`, blob);
 
-    zip.generateAsync({ type: "blob" })
+    zip.generateAsync({
+      type: "blob", compression: "DEFLATE",
+      compressionOptions: {
+        level: 9
+      }
+    })
       .then(function (content) {
         var link = document.createElement('a');
         link.href = window.URL.createObjectURL(content);
