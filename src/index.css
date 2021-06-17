@@ -34,5 +34,5 @@ input[type="file"] {
   text-decoration: underline;
 }
 .disabled{
-  opacity: 50%;
+  opacity: 0.5 !important;
 }
