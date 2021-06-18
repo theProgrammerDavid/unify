@@ -132,8 +132,8 @@ function App() {
         <div>
           {card('Convert Offline', 'Install as a PWA to convert documents offline')}
         </div>
-        <div className="disabled">
-          {card('Compressed Output', 'Coming Soon - Output to disk directly as zip')}
+        <div className="">
+          {card('Zip Download', 'Save pdf as compressed zip to disk')}
         </div>
       </div>
 
