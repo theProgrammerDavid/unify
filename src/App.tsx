@@ -115,8 +115,9 @@ function App() {
   return (
     <div className="uk-container ">
 
-      <p className="uk-padding uk-light uk-heading-large black grid">
+      <p className="uk-padding-small uk-light uk-heading-large black grid">
         UNIFY
+        <span className="uk-text-meta">A PDF Merging tool</span>
         <span className="uk-text-meta">Made by <a className="uk-link-muted mylink" rel="noreferrer" target="_blank" href="https://davidvelho.tech">David Velho</a></span>
       </p>
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
