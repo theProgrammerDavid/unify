@@ -3,6 +3,8 @@ import './index.css'
 import { PDFDocument } from 'pdf-lib';
 import jszip from 'jszip';
 
+// import * as workerPath from "./worker";
+
 var uploadedFiles: File[] = [];
 const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
 
@@ -28,18 +30,22 @@ function setup() {
 }
 
 function checkBrowser() {
-  if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
+  if (!(window.Worker && window.File && window.FileReader && window.FileList && window.Blob)) {
     alert('The File APIs are not fully supported in this browser.');
 
   }
 }
 
 async function makePdf(zipDownload: boolean) {
-  if (uploadedFiles.length === 0) return;
+
+  if (uploadedFiles.length === 0 || uploadedFiles.length === 1) return;
   (document.getElementById("prog") as HTMLInputElement).value = '0';
 
   let progressUnit = 100 / uploadedFiles.length;
   console.log(progressUnit)
+
+  let loadingDiv = (document.getElementById("loading") as HTMLElement);
+  loadingDiv.setAttribute("style", "display:block");
 
   const pdfDoc = await PDFDocument.create()
 
@@ -59,6 +65,7 @@ async function makePdf(zipDownload: boolean) {
   const pdfBytes = await pdfDoc.save()
   var blob = new Blob([pdfBytes], { type: "application/pdf" });
 
+  loadingDiv.setAttribute("style", "display:none");
 
   if (zipDownload) {
     const zip = new jszip();
@@ -88,11 +95,13 @@ async function makePdf(zipDownload: boolean) {
 
 }
 
-function card(heading: string, body: string) {
+function card(heading: string, body: string, tooltip: any = undefined) {
   return (
     <div className="">
       <div className="uk-light uk-background-secondary uk-padding">
-        <h3>{heading}</h3>
+        <h3>{heading}
+          {tooltip !== undefined ? tooltip : <></>}
+        </h3>
         <p>{body}</p>
 
       </div>
@@ -106,13 +115,14 @@ function App() {
   return (
     <div className="uk-container ">
 
-      <p className="uk-padding uk-light uk-heading-large black grid">
+      <p className="uk-padding-small uk-light uk-heading-large black grid">
         UNIFY
+        <span className="uk-text-meta">A PDF Merging tool</span>
         <span className="uk-text-meta">Made by <a className="uk-link-muted mylink" rel="noreferrer" target="_blank" href="https://davidvelho.tech">David Velho</a></span>
       </p>
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div className="">
-          {card('Fast af', 'Native Asynchronous Javascript PDF Manipulation')}
+          {card('Fast af', 'Native Asynchronous Javascript PDF Manipulation', <>&nbsp;<span uk-icon="icon: info" uk-tooltip="Speed depends on CPU and disk"></span></>)}
         </div>
         <div>
           {card('Privacy 💯', 'All conversion done in web browser. No external servers and no ads')}
@@ -130,7 +140,7 @@ function App() {
           {card('No Limit', 'No upper limit for maximum docs merged. CPU go brrrr')}
         </div>
         <div>
-          {card('Convert Offline', 'Install as a PWA to convert documents offline')}
+          {card('Convert Offline', 'Install as a PWA to convert documents offline', <>&nbsp;<span uk-icon="icon: info" uk-tooltip="You need to manually install it / add to homepage"></span></>)}
         </div>
         <div className="">
           {card('Zip Download', 'Save pdf as compressed zip to disk')}
@@ -156,14 +166,17 @@ function App() {
             className="uk-button uk-button-default"
             onClick={() => { makePdf(ziptoggle); }}
           >
-            MERGE</button>
+
+            MERGE</button> <div id="loading" className="hidden" uk-spinner="true"></div>
+
+
         </div>
         <div className=""></div>
       </div>
 
       <div id="dropZone" className="js-upload uk-placeholder uk-text-center">
 
-        <div uk-form-custom>
+        <div uk-form-custom="true">
           <label className="uk-button white uk-button-default custom-file-upload">
             <input type="file" id="inputFiles" accept=".pdf" multiple={true} />
             SELECT FILES

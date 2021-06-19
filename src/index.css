@@ -36,3 +36,6 @@ input[type="file"] {
 .disabled{
   opacity: 0.5 !important;
 }
+.hidden{
+  display: none;
+}
