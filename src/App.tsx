@@ -4,7 +4,7 @@ import { PDFDocument } from 'pdf-lib';
 import jszip from 'jszip';
 
 // import * as workerPath from "./worker";
- 
+
 var uploadedFiles: File[] = [];
 const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
 
@@ -65,6 +65,7 @@ async function makePdf(zipDownload: boolean) {
   const pdfBytes = await pdfDoc.save()
   var blob = new Blob([pdfBytes], { type: "application/pdf" });
 
+  loadingDiv.setAttribute("style", "display:none");
 
   if (zipDownload) {
     const zip = new jszip();
@@ -90,7 +91,6 @@ async function makePdf(zipDownload: boolean) {
     link.click();
   }
 
-  loadingDiv.setAttribute("display", "none");
 
 
 }
