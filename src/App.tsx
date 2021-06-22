@@ -1,27 +1,22 @@
 import React, { useEffect } from 'react';
 import './index.css'
-import { PDFDocument } from 'pdf-lib';
 import jszip from 'jszip';
 
-// import * as workerPath from "./worker";
+import Worker from './worker';
+const instance = new Worker();
 
 var uploadedFiles: File[] = [];
-const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
 
 
 function handleFileSelect(evt: any) {
-  var files = evt.target.files; // FileList object
-  // files is a FileList of File objects. List some properties.
 
-  uploadedFiles = evt.target.files;
+  uploadedFiles.push(...evt.target.files);
+  console.log(uploadedFiles)
 
   let output: string[] = [];
-  for (var i = 0; i < files.length; i++) {
-    let f = files[i];
-    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-      f.size, ' bytes, last modified: ',
-      f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-      '</li>');
+  for (var i = 0; i < uploadedFiles.length; i++) {
+    let f = uploadedFiles[i];
+    output.push(`<li><strong>${escape(f.name)}</strong>  ${f.size / 1000} kb </li>`)
   }
   document.getElementById('outputList')!.innerHTML = '<ul>' + output.join('') + '</ul>';
 }
@@ -40,30 +35,16 @@ async function makePdf(zipDownload: boolean) {
 
   if (uploadedFiles.length === 0 || uploadedFiles.length === 1) return;
   (document.getElementById("prog") as HTMLInputElement).value = '0';
-
-  let progressUnit = 100 / uploadedFiles.length;
-  console.log(progressUnit)
+ 
 
   let loadingDiv = (document.getElementById("loading") as HTMLElement);
   loadingDiv.setAttribute("style", "display:block");
 
-  const pdfDoc = await PDFDocument.create()
-
-  for (let i = 1; i <= uploadedFiles.length; i++) {
-    let file = uploadedFiles[i - 1];
-    const p2 = await PDFDocument.load(await fileToUintArray(file));
-    for (let j = 0; j < p2.getPageCount(); j++) {
-      pdfDoc.addPage().drawPage(await pdfDoc.embedPage(p2.getPages()[j]))
-    }
-
-    (document.getElementById("prog") as HTMLInputElement).value = `${progressUnit * i}`
-
-    console.log(`${progressUnit * i}%`)
-  }
-
   let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged.pdf';
-  const pdfBytes = await pdfDoc.save()
-  var blob = new Blob([pdfBytes], { type: "application/pdf" });
+  
+  const res = await instance.processData(uploadedFiles);
+
+  var blob = new Blob([res], { type: "application/pdf" });
 
   loadingDiv.setAttribute("style", "display:none");
 
@@ -161,7 +142,6 @@ function App() {
           <input className="uk-input" id="fileName" type="text" placeholder={`Save As  : unify_merged.${ziptoggle ? "zip" : "pdf"}`} />
           <br />
           <br />
-          <progress id="prog" className="uk-progress" value="0" max="100" >Progress</progress>
           <button
             className="uk-button uk-button-default"
             onClick={() => { makePdf(ziptoggle); }}
@@ -178,7 +158,7 @@ function App() {
 
         <div uk-form-custom="true">
           <label className="uk-button white uk-button-default custom-file-upload">
-            <input type="file" id="inputFiles" accept=".pdf" multiple={true} />
+            <input type="file" id="inputFiles" accept=".pdf, image/*" multiple={true} capture="camera" />
             SELECT FILES
           </label>
           <br />
