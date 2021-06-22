@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
 import './index.css'
-import { PDFDocument } from 'pdf-lib';
 import jszip from 'jszip';
 
 import Worker from './worker';
 const instance = new Worker();
 
 var uploadedFiles: File[] = [];
-const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
 
 
 function handleFileSelect(evt: any) {
