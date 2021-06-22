@@ -34,9 +34,7 @@ function checkBrowser() {
 async function makePdf(zipDownload: boolean) {
 
   if (uploadedFiles.length === 0 || uploadedFiles.length === 1) return;
-  (document.getElementById("prog") as HTMLInputElement).value = '0';
- 
-
+  
   let loadingDiv = (document.getElementById("loading") as HTMLElement);
   loadingDiv.setAttribute("style", "display:block");
 
