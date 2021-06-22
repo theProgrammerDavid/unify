@@ -3,25 +3,19 @@ import './index.css'
 import { PDFDocument } from 'pdf-lib';
 import jszip from 'jszip';
 
-// import * as workerPath from "./worker";
-
 var uploadedFiles: File[] = [];
 const fileToUintArray = async (file: File) => new Uint8Array(await file.arrayBuffer());
 
 
 function handleFileSelect(evt: any) {
-  var files = evt.target.files; // FileList object
-  // files is a FileList of File objects. List some properties.
-
-  uploadedFiles = evt.target.files;
+  
+  uploadedFiles.push(...evt.target.files);
+  console.log(uploadedFiles)
 
   let output: string[] = [];
-  for (var i = 0; i < files.length; i++) {
-    let f = files[i];
-    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-      f.size, ' bytes, last modified: ',
-      f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-      '</li>');
+  for (var i = 0; i < uploadedFiles.length; i++) {
+    let f = uploadedFiles[i];
+    output.push(`<li><strong>${escape(f.name)}</strong>  ${f.size/1000} kb </li>`)
   }
   document.getElementById('outputList')!.innerHTML = '<ul>' + output.join('') + '</ul>';
 }
@@ -49,11 +43,44 @@ async function makePdf(zipDownload: boolean) {
 
   const pdfDoc = await PDFDocument.create()
 
+  let page = pdfDoc.addPage();
+  let pageWidth = page.getWidth(), pageHeight = page.getHeight();
+  pdfDoc.removePage(0);
+
   for (let i = 1; i <= uploadedFiles.length; i++) {
     let file = uploadedFiles[i - 1];
-    const p2 = await PDFDocument.load(await fileToUintArray(file));
-    for (let j = 0; j < p2.getPageCount(); j++) {
-      pdfDoc.addPage().drawPage(await pdfDoc.embedPage(p2.getPages()[j]))
+
+    let extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+
+        let img = await pdfDoc.embedJpg(await fileToUintArray(file));
+        pdfDoc.addPage().drawImage(img, {
+          x: 10, y: 10, height: pageHeight, width: pageWidth
+        }
+        );
+        break;
+      case 'png':
+        let img2 = await pdfDoc.embedPng(await fileToUintArray(file));
+        pdfDoc.addPage().drawImage(img2, {
+          x: 10, y: 10, height: pageHeight, width: pageWidth
+        })
+        break;
+
+      case 'pdf':
+        const p2 = await PDFDocument.load(await fileToUintArray(file));
+        for (let j = 0; j < p2.getPageCount(); j++) {
+          pdfDoc.addPage().drawPage(await pdfDoc.embedPage(p2.getPages()[j]))
+        }
+        break;
+
+      default:
+        loadingDiv.setAttribute("style", "display:none");
+
+        return alert('Please select only image and pdf files');
+
     }
 
     (document.getElementById("prog") as HTMLInputElement).value = `${progressUnit * i}`
@@ -178,7 +205,7 @@ function App() {
 
         <div uk-form-custom="true">
           <label className="uk-button white uk-button-default custom-file-upload">
-            <input type="file" id="inputFiles" accept=".pdf" multiple={true} />
+            <input type="file" id="inputFiles" accept=".pdf, image/*" multiple={true} capture="camera" />
             SELECT FILES
           </label>
           <br />
