@@ -19,20 +19,23 @@ export async function processData(uploadedFiles: File[]): Promise<Uint8Array> {
       case "jpg":
       case "jpeg":
         let img = await pdfDoc.embedJpg(await fileToUintArray(file));
+        let jpgscale = img.scaleToFit(pageWidth, pageHeight);
         pdfDoc.addPage().drawImage(img, {
           x: 10,
           y: 10,
-          height: pageHeight,
-          width: pageWidth,
+          height: jpgscale.height - 10,
+          width: jpgscale.width - 10,
         });
         break;
       case "png":
         let img2 = await pdfDoc.embedPng(await fileToUintArray(file));
+        let pngscale = img2.scaleToFit(pageWidth, pageHeight);
+
         pdfDoc.addPage().drawImage(img2, {
           x: 10,
           y: 10,
-          height: pageHeight,
-          width: pageWidth,
+          height: pngscale.height - 10,
+          width: pngscale.width - 10,
         });
         break;
 
