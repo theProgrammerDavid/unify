@@ -10,41 +10,43 @@ export async function processData(uploadedFiles: File[]): Promise<Uint8Array> {
     pageHeight = page.getHeight();
   pdfDoc.removePage(0);
 
-  for (let i = 1; i <= uploadedFiles.length; i++) {
-    let file = uploadedFiles[i - 1];
+  for (let i = 0; i < uploadedFiles.length; i++) {
+    let file = uploadedFiles[i];
 
     let extension = file.name.substring(file.name.lastIndexOf(".") + 1);
 
     switch (extension) {
       case "jpg":
-      case "jpeg":
+      case "jpeg": {
         let img = await pdfDoc.embedJpg(await fileToUintArray(file));
-        let jpgscale = img.scaleToFit(pageWidth, pageHeight);
+        let { width, height } = img.scaleToFit(pageWidth, pageHeight);
+
         pdfDoc.addPage().drawImage(img, {
           x: 10,
           y: 10,
-          height: jpgscale.height - 10,
-          width: jpgscale.width - 10,
+          height: height - 20,
+          width: width - 20,
         });
         break;
-      case "png":
-        let img2 = await pdfDoc.embedPng(await fileToUintArray(file));
-        let pngscale = img2.scaleToFit(pageWidth, pageHeight);
-
-        pdfDoc.addPage().drawImage(img2, {
+      }
+      case "png": {
+        let img = await pdfDoc.embedPng(await fileToUintArray(file));
+        let { width, height } = img.scaleToFit(pageWidth, pageHeight);
+        pdfDoc.addPage().drawImage(img, {
           x: 10,
           y: 10,
-          height: pngscale.height - 10,
-          width: pngscale.width - 10,
+          height: height - 20,
+          width: width - 20,
         });
         break;
-
-      case "pdf":
+      }
+      case "pdf": {
         const p2 = await PDFDocument.load(await fileToUintArray(file));
         for (let j = 0; j < p2.getPageCount(); j++) {
           pdfDoc.addPage().drawPage(await pdfDoc.embedPage(p2.getPages()[j]));
         }
         break;
+      }
     }
   }
   return pdfDoc.save();
