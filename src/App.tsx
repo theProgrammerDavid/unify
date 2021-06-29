@@ -38,7 +38,7 @@ async function makePdf(zipDownload: boolean) {
   let loadingDiv = (document.getElementById("loading") as HTMLElement);
   loadingDiv.setAttribute("style", "display:block");
 
-  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged.pdf';
+  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged';
   
   const res = await instance.processData(uploadedFiles);
 
