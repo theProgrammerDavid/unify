@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import './index.css'
 import jszip from 'jszip';
-
+import 'reactjs-popup/dist/index.css';
 import Worker from './worker';
+
+import Features from './features';
+
 const instance = new Worker();
 
 var uploadedFiles: File[] = [];
@@ -34,12 +37,12 @@ function checkBrowser() {
 async function makePdf(zipDownload: boolean) {
 
   if (uploadedFiles.length === 0 || uploadedFiles.length === 1) return;
-  
+
   let loadingDiv = (document.getElementById("loading") as HTMLElement);
   loadingDiv.setAttribute("style", "display:block");
 
-  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged.pdf';
-  
+  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged';
+
   const res = await instance.processData(uploadedFiles);
 
   var blob = new Blob([res], { type: "application/pdf" });
@@ -74,20 +77,6 @@ async function makePdf(zipDownload: boolean) {
 
 }
 
-function card(heading: string, body: string, tooltip: any = undefined) {
-  return (
-    <div className="">
-      <div className="uk-light uk-background-secondary uk-padding">
-        <h3>{heading}
-          {tooltip !== undefined ? tooltip : <></>}
-        </h3>
-        <p>{body}</p>
-
-      </div>
-    </div>
-  )
-}
-
 function App() {
   const [ziptoggle, setZip] = React.useState<boolean>(false);
   useEffect(() => { checkBrowser(); setup(); }, [])
@@ -99,32 +88,11 @@ function App() {
         <span className="uk-text-meta">A PDF Merging tool</span>
         <span className="uk-text-meta">Made by <a className="uk-link-muted mylink" rel="noreferrer" target="_blank" href="https://davidvelho.tech">David Velho</a></span>
       </p>
-      <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
-        <div className="">
-          {card('Fast af', 'Native Asynchronous Javascript PDF Manipulation', <>&nbsp;<span uk-icon="icon: info" uk-tooltip="Speed depends on CPU and disk"></span></>)}
-        </div>
-        <div>
-          {card('Privacy 💯', 'All conversion done in web browser. No external servers and no ads')}
-        </div>
-        <div className="disabled  ">
-          {card('Versatile', 'Coming soon - Doc and PPT Manipulation')}
-        </div>
-      </div>
 
-      {/* ----------------------- */}
-
-
-      <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
-        <div>
-          {card('No Limit', 'No upper limit for maximum docs merged. CPU go brrrr')}
-        </div>
-        <div>
-          {card('Convert Offline', 'Install as a PWA to convert documents offline', <>&nbsp;<span uk-icon="icon: info" uk-tooltip="You need to manually install it / add to homepage"></span></>)}
-        </div>
-        <div className="">
-          {card('Zip Download', 'Save pdf as compressed zip to disk')}
-        </div>
-      </div>
+      <p className="uk-padding-small uk-light  black grid">
+     <Features   />
+        
+      </p>
 
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div className="">
@@ -137,7 +105,7 @@ function App() {
           </div>
         </div>
         <div className="uk-light">
-          <input className="uk-input" id="fileName" type="text" placeholder={`Save As  : unify_merged.${ziptoggle ? "zip" : "pdf"}`} />
+          <input className="uk-input" id="fileName" type="text" placeholder={`Save ${ziptoggle ? "zip" : "pdf"} as  : unify_merged`} /> 
           <br />
           <br />
           <button
@@ -160,7 +128,8 @@ function App() {
             SELECT FILES
           </label>
           <br />
-          <output id="outputList" className="white" />
+          <br />
+          <output id="outputList" className="uk-light" />
         </div>
       </div>
     </div>
