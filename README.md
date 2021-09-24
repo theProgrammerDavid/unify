@@ -15,7 +15,7 @@ Modern PDF Merging website focused on usability and ease of use. All conversions
 - No limit on number of PDFs converted
 - Offline support via PWA
 - Save file as compressed zip
-
+- PDF Compression
   
 ## Deployment
 
@@ -39,5 +39,3 @@ npm start
 ## Roadmap
 
 - Doc and PPT manipulation
-
-- PDF compression
