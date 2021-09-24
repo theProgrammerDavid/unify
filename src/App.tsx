@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import './index.css'
 import jszip from 'jszip';
-import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Worker from './worker';
 
