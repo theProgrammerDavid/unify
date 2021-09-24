@@ -42,9 +42,10 @@ export async function processData(uploadedFiles: File[]): Promise<Uint8Array> {
       }
       case "pdf": {
         const p2 = await PDFDocument.load(await fileToUintArray(file));
-        for (let j = 0; j < p2.getPageCount(); j++) {
-          pdfDoc.addPage().drawPage(await pdfDoc.embedPage(p2.getPages()[j]));
-        }
+        const copyPage = await pdfDoc.copyPages(p2, p2.getPageIndices());
+        copyPage.forEach(page=>{
+          pdfDoc.addPage(page)
+        })
         break;
       }
     }
