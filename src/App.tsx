@@ -106,7 +106,7 @@ function App() {
           </div>
         </div>
         <div className="uk-light">
-          <input className="uk-input" id="fileName" type="text" placeholder={`Save As  : unify_merged.${ziptoggle ? "zip" : "pdf"}`} />
+          <input className="uk-input" id="fileName" type="text" placeholder={`Save ${ziptoggle ? "zip" : "pdf"} as  : unify_merged`} /> 
           <br />
           <br />
           <button
@@ -129,7 +129,8 @@ function App() {
             SELECT FILES
           </label>
           <br />
-          <output id="outputList" className="white" />
+          <br />
+          <output id="outputList" className="uk-light" />
         </div>
       </div>
     </div>
