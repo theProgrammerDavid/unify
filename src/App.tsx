@@ -1,85 +1,75 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, createRef } from 'react';
 import './index.css'
 import jszip from 'jszip';
 import 'reactjs-popup/dist/index.css';
 import Worker from './worker';
+import FileTable from './FileTable';
 
 import Features from './features';
 
 const instance = new Worker();
 
-var uploadedFiles: File[] = [];
-
-
-function handleFileSelect(evt: any) {
-
-  uploadedFiles.push(...evt.target.files);
-  console.log(uploadedFiles)
-
-  let output: string[] = [];
-  for (var i = 0; i < uploadedFiles.length; i++) {
-    let f = uploadedFiles[i];
-    output.push(`<li><strong>${escape(f.name)}</strong>  ${f.size / 1000} kb </li>`)
-  }
-  document.getElementById('outputList')!.innerHTML = '<ul>' + output.join('') + '</ul>';
-}
-function setup() {
-  document.getElementById('inputFiles')!.addEventListener('change', handleFileSelect, false);
-}
-
-function checkBrowser() {
+const checkBrowser = () => {
   if (!(window.Worker && window.File && window.FileReader && window.FileList && window.Blob)) {
     alert('The File APIs are not fully supported in this browser.');
-
   }
-}
-
-async function makePdf(zipDownload: boolean) {
-
-  if (uploadedFiles.length === 0 || uploadedFiles.length === 1) return;
-
-  let loadingDiv = (document.getElementById("loading") as HTMLElement);
-  loadingDiv.setAttribute("style", "display:block");
-
-  let fileName = (document.getElementById("fileName") as HTMLInputElement).value || 'unify_merged';
-
-  const res = await instance.processData(uploadedFiles);
-
-  var blob = new Blob([res], { type: "application/pdf" });
-
-  loadingDiv.setAttribute("style", "display:none");
-
-  if (zipDownload) {
-    const zip = new jszip();
-    zip.file(`${fileName}.pdf`, blob);
-
-    zip.generateAsync({
-      type: "blob", compression: "DEFLATE",
-      compressionOptions: {
-        level: 9
-      }
-    })
-      .then(function (content) {
-        var link = document.createElement('a');
-        link.href = window.URL.createObjectURL(content);
-        link.download = `${fileName}.zip`;
-        link.click();
-      });
-  }
-  else {
-    var link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = `${fileName}.pdf`;
-    link.click();
-  }
-
-
-
 }
 
 function App() {
-  const [ziptoggle, setZip] = React.useState<boolean>(false);
-  useEffect(() => { checkBrowser(); setup(); }, [])
+  const [uploadedFiles, setUploadedFiles] = useState<Array<File>>([]);
+  const [ziptoggle, setZip] = useState<boolean>(false);
+  const [fileName, setFileName] = useState<string>('');
+  const loadingDiv = createRef<HTMLDivElement>();
+  const outputContainer = createRef<HTMLDivElement>();
+
+  useEffect(() => checkBrowser, [])
+  useEffect(() => {
+    console.log(uploadedFiles)
+  }, [uploadedFiles]);
+
+  const makePdf = async (zipDownload: boolean) => {
+
+    const names = Array.from(outputContainer.current?.childNodes!).map(node => node.textContent!);
+    console.log(names);
+    setUploadedFiles(uploadedFiles.sort(function (a, b) {
+      return names.indexOf(a.name) - names.indexOf(b.name);
+    }))
+
+    if (uploadedFiles.length === 0 || uploadedFiles.length === 1) return;
+
+    loadingDiv.current!.setAttribute("style", "display:block");
+
+    const res = await instance.processData(uploadedFiles);
+    const link = document.createElement('a');
+    var blob = new Blob([res], { type: "application/pdf" });
+
+    loadingDiv.current!.setAttribute("style", "display:none");
+
+    if (zipDownload) {
+      const zip = new jszip();
+      zip.file(`${fileName || 'unify'}.pdf`, blob);
+
+      let content = await zip.generateAsync({
+        type: "blob", compression: "DEFLATE",
+        compressionOptions: {
+          level: 9
+        }
+      })
+      link.href = window.URL.createObjectURL(content);
+      link.download = `${fileName}.zip`;
+      link.click();
+    }
+    else {
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `${fileName}.pdf`;
+      link.click();
+    }
+  }
+
+  const deleteFile = (fileIndex: number) => {
+    setUploadedFiles(uploadedFiles.filter((value, index) => index !== fileIndex));
+  }
+
   return (
     <div className="uk-container ">
 
@@ -89,10 +79,9 @@ function App() {
         <span className="uk-text-meta">Made by <a className="uk-link-muted mylink" rel="noreferrer" target="_blank" href="https://davidvelho.tech">David Velho</a></span>
       </p>
 
-      <p className="uk-padding-small uk-light  black grid">
-     <Features   />
-        
-      </p>
+      <div className="uk-padding-small uk-light  black grid">
+        <Features />
+      </div>
 
       <div className="uk-child-width-expand@s uk-text-center" uk-grid="true" >
         <div className="">
@@ -105,7 +94,13 @@ function App() {
           </div>
         </div>
         <div className="uk-light">
-          <input className="uk-input" id="fileName" type="text" placeholder={`Save ${ziptoggle ? "zip" : "pdf"} as  : unify_merged`} /> 
+          <input
+            className="uk-input"
+            id="fileName"
+            type="text"
+            placeholder={`Save ${ziptoggle ? "zip" : "pdf"} as  : unify_merged`}
+            onChange={(e) => setFileName(e.target.value)}
+          />
           <br />
           <br />
           <button
@@ -113,7 +108,7 @@ function App() {
             onClick={() => { makePdf(ziptoggle); }}
           >
 
-            MERGE</button> <div id="loading" className="hidden" uk-spinner="true"></div>
+            MERGE</button> <div id="loading" ref={loadingDiv} className="hidden" uk-spinner="true"></div>
 
 
         </div>
@@ -124,12 +119,24 @@ function App() {
 
         <div uk-form-custom="true">
           <label className="uk-button white uk-button-default custom-file-upload">
-            <input type="file" id="inputFiles" accept=".pdf, image/*" multiple={true} capture="camera" />
+            <input
+              type="file"
+              id="inputFiles"
+              accept=".pdf, image/*"
+              multiple={true}
+              capture="camera"
+              onChange={(e) => setUploadedFiles(Array.from(e.target.files!))}
+            />
             SELECT FILES
           </label>
           <br />
           <br />
-          <output id="outputList" className="uk-light" />
+          {/* <output id="outputList" className="uk-light" /> */}
+          <FileTable
+            deleteFile={deleteFile}
+            files={uploadedFiles}
+            sortableRef={outputContainer}
+          />
         </div>
       </div>
     </div>
