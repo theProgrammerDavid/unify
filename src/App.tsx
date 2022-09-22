@@ -1,6 +1,6 @@
 import React, { useEffect, useState, createRef } from 'react';
 import './index.css'
-import jszip, { file } from 'jszip';
+import jszip from 'jszip';
 import 'reactjs-popup/dist/index.css';
 import Worker from './worker';
 import FileTable from './FileTable';
